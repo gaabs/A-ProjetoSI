@@ -157,7 +157,7 @@ public class GUI {
 				
 				
 				double w = Double.parseDouble(wValueTextField.getText());
-				
+				Square.w = w;
 				
 				PriorityQueue<Square> pq = new PriorityQueue<Square>();
 
@@ -165,10 +165,8 @@ public class GUI {
 
 				for(int i=0;i<n;i++){
 					for(int j=0;j<n;j++){
+						grid[i][j].reset();
 						grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
-						grid[i][j].real = Double.MAX_VALUE;
-						grid[i][j].parent=null;
-						grid[i][j].path = false;
 						grid[i][j].repaint();
 
 					}
