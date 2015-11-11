@@ -4,6 +4,8 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
@@ -23,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.xml.bind.Marshaller.Listener;
+
 import java.awt.ComponentOrientation;
 
 
@@ -114,8 +117,34 @@ public class GUI {
 		wValueTextField.setBounds(292, 48, 54, 23);
 		wValueTextField.revalidate();
 		menu.add(wValueTextField);
-		menu.revalidate();
-		frame.revalidate();
+
+		wValueTextField.addKeyListener(new KeyListener() {
+			
+			public void keyTyped(KeyEvent arg0) {
+				String s = wValueTextField.getText();
+				System.out.println(s);
+				if(!s.matches("[0-9]*[,.]?[0-9]*")){
+					wValueTextField.setText("");
+				}
+				
+			}
+			
+			public void keyReleased(KeyEvent arg0) {
+				String s = wValueTextField.getText();
+				if(!s.matches("[0-9]*[,.]?[0-9]*")){
+					wValueTextField.setText("");
+				}
+				
+			}
+			
+			public void keyPressed(KeyEvent arg0) {
+				String s = wValueTextField.getText();
+				if(!s.matches("[0-9]*[,.]?[0-9]*")){
+					wValueTextField.setText("");
+				}				
+			}
+		});
+		
 
 
 		JButton SearchButton = new JButton("Search");
@@ -167,13 +196,6 @@ public class GUI {
 						pq.remove();
 						current.expanding=true;
 						current.repaint();
-						try {
-							Thread.sleep(10);
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-
 						for(int i=0;i<8;i++){
 							ti = current.i + di[i];
 							tj = current.j + dj[i];
@@ -185,12 +207,6 @@ public class GUI {
 										pq.add(grid[ti][tj]);
 										grid[ti][tj].border=true;
 										grid[ti][tj].repaint();
-										try {
-											Thread.sleep(10);
-										} catch (InterruptedException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
-										}
 									}
 									grid[ti][tj].parent = current;
 
