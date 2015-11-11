@@ -29,6 +29,18 @@ public class Square extends JPanel implements Comparable<Square>{
 		this.setToolTipText(String.format("(%d,%d)",i,j));
 	}
 	
+	void reset(){
+		real = Double.MAX_VALUE;
+		parent = null;
+		border = expanding = path = false;
+	}
+	
+	void resetAll(){
+		real = Double.MAX_VALUE;
+		parent = null;
+		obstacle = start = end = border = expanding = path = false;
+	}
+	
 	public int compareTo(Square p) {
 		function = real + w*h;
 		p.function =p.real + w*p.h;
@@ -58,10 +70,13 @@ public class Square extends JPanel implements Comparable<Square>{
 	public void drawStart(Graphics g){
 		g.setColor(Color.RED);
 		g.fillOval(0, 0, 10, 10);
+		g.drawString("START", 20, 20);
+		System.out.println("sdasds");
 	}
 	
 	public void drawEnd(Graphics g){
 		g.setColor(Color.GREEN);
+		g.drawString("END", 20, 20);
 		g.fillOval(this.getWidth()-10, 0, 10, 10);
 	}
 

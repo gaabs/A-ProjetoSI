@@ -17,6 +17,8 @@ import java.util.Scanner;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JFormattedTextField;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -38,6 +40,8 @@ public class GUI {
 	private JRadioButton startButton;
 	private JRadioButton endButton;
 	private JRadioButton obstaclesButton;
+	JButton searchButton;
+	JButton resetButton;
 	private JLabel wValueLabel;
 	private JFormattedTextField wValueTextField;
 	private Square startSquare, endSquare;
@@ -119,24 +123,24 @@ public class GUI {
 		menu.add(wValueTextField);
 
 		wValueTextField.addKeyListener(new KeyListener() {
-			
+
 			public void keyTyped(KeyEvent arg0) {
 				String s = wValueTextField.getText();
 				System.out.println(s);
 				if(!s.matches("[0-9]*[,.]?[0-9]*")){
 					wValueTextField.setText("");
 				}
-				
+
 			}
-			
+
 			public void keyReleased(KeyEvent arg0) {
 				String s = wValueTextField.getText();
 				if(!s.matches("[0-9]*[,.]?[0-9]*")){
 					wValueTextField.setText("");
 				}
-				
+
 			}
-			
+
 			public void keyPressed(KeyEvent arg0) {
 				String s = wValueTextField.getText();
 				if(!s.matches("[0-9]*[,.]?[0-9]*")){
@@ -144,96 +148,133 @@ public class GUI {
 				}				
 			}
 		});
-		
 
 
-		JButton SearchButton = new JButton("Search");
-		SearchButton.setBounds(411, 48, 89, 23);
-		menu.add(SearchButton);
-		SearchButton.addActionListener(new ActionListener() {
+		searchButton = new JButton("Search");
+		searchButton.setBounds(411, 48, 89, 23);
+		menu.add(searchButton);
+		searchButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				
-				double w = Double.parseDouble(wValueTextField.getText());
-				Square.w = w;
-				
-				PriorityQueue<Square> pq = new PriorityQueue<Square>();
+
+				if (startSquare != null && endSquare != null){
+
+					double w = Double.parseDouble(wValueTextField.getText());
+					Square.w = w;
+
+					PriorityQueue<Square> pq = new PriorityQueue<Square>();
 
 
 
-				for(int i=0;i<n;i++){
-					for(int j=0;j<n;j++){
-						grid[i][j].reset();
-						grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
-						grid[i][j].repaint();
-
-					}
-
-				}
-
-				//				startSquare.function = h;
-				startSquare.real=0;
-				pq.add(startSquare);
-
-				// U, D, L, R, UL, UR, DL, DR 
-				int di[] = {-1,1,0,0,-1,-1,1,1};
-				int dj[] = {0,0,-1,1,-1,1,-1,1};
-				double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
-				double custo;
-				int ti, tj;
-				Square current = startSquare;
-
-				while(!pq.isEmpty()){
-
-					current = pq.peek();
-					if(current==endSquare){
-						pq.clear();
-					}else{
-						pq.remove();
-						current.expanding=true;
-						current.repaint();
-						for(int i=0;i<8;i++){
-							ti = current.i + di[i];
-							tj = current.j + dj[i];
-							custo = current.real + cost[i];
-							if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
-								if(grid[ti][tj].real > custo){
-									grid[ti][tj].real = custo;
-									if(grid[ti][tj].parent==null){
-										pq.add(grid[ti][tj]);
-										grid[ti][tj].border=true;
-										grid[ti][tj].repaint();
-									}
-									grid[ti][tj].parent = current;
-
-								}
-							}
+					for(int i=0;i<n;i++){
+						for(int j=0;j<n;j++){
+							grid[i][j].reset();
+							grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
+							grid[i][j].repaint();
 
 						}
+
+					}
+
+					//				startSquare.function = h;
+					startSquare.real=0;
+					pq.add(startSquare);
+
+					// U, D, L, R, UL, UR, DL, DR 
+					int di[] = {-1,1,0,0,-1,-1,1,1};
+					int dj[] = {0,0,-1,1,-1,1,-1,1};
+					double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
+					double custo;
+					int ti, tj;
+					Square current = startSquare;
+
+					while(!pq.isEmpty()){
+
+						current = pq.peek();
+						if(current==endSquare){
+							pq.clear();
+						}else{
+							pq.remove();
+							current.expanding=true;
+							current.repaint();
+
+							try {
+								Thread.sleep(100);
+								System.out.println(123);
+								frame.revalidate();
+								frame.repaint();
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+
+
+							for(int i=0;i<8;i++){
+								ti = current.i + di[i];
+								tj = current.j + dj[i];
+								custo = current.real + cost[i];
+								if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
+									if(grid[ti][tj].real > custo){
+										grid[ti][tj].real = custo;
+										if(grid[ti][tj].parent==null){
+											pq.add(grid[ti][tj]);
+											grid[ti][tj].border=true;
+											grid[ti][tj].revalidate();
+											grid[ti][tj].repaint();
+										}
+										grid[ti][tj].parent = current;
+
+									}
+								}
+
+							}
+						}
+
+
+
+					}
+
+					//current = endSquare;
+					System.out.println("saiii");
+					while(current!=null){
+						current.path = true;
+						current.repaint();
+						System.out.println(current.parent);
+						current = current.parent;
 					}
 
 
 
+
+
+
+				} else{
+					JOptionPane.showMessageDialog(null,"Erro! Selecione um começo e um fim!");
 				}
-
-				//current = endSquare;
-				System.out.println("saiii");
-				while(current!=null){
-					current.path = true;
-					current.repaint();
-					System.out.println(current.parent);
-					current = current.parent;
-				}
-
-
-
-
-
-
 			}
-		});;
+		});
+
+		resetButton = new JButton("Reset");
+		resetButton.setBounds(549, 48, 89, 23);
+		menu.add(resetButton);
+		resetButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				for (int i = 0; i < n; i++){
+					for (int j = 0; j < n; j++){
+						grid[i][j].resetAll();
+						grid[i][j].repaint();
+					}
+				}
+				startSquare = null;
+				endSquare = null;
+			}
+		});
+
+
+
 		//frame.getContentPane().add(menu, BorderLayout.NORTH);
 
 		Scanner scan = new Scanner(System.in);
@@ -315,5 +356,9 @@ public class GUI {
 		}
 		//frame.pack();
 		scan.close();
+	}
+	
+	static void buildGrid(){
+		
 	}
 }
