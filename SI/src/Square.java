@@ -12,6 +12,8 @@ public class Square extends JPanel implements Comparable<Square>{
 	double h;
 	boolean obstacle, start, end, border, expanding, path;
 	Square parent;
+	
+	static double w = 1.0;
 
 	/**
 	 * Create the panel.
@@ -28,8 +30,8 @@ public class Square extends JPanel implements Comparable<Square>{
 	}
 	
 	public int compareTo(Square p) {
-		function = real + h;
-		p.function =p.real+p.h;
+		function = real + w*h;
+		p.function =p.real + w*p.h;
 		
 		if (function > p.function) return 1;
 		if (function < p.function) return -1;

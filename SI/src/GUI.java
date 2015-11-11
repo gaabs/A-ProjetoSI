@@ -6,11 +6,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.JFormattedTextField;
 import javax.swing.JRadioButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.xml.bind.Marshaller.Listener;
+import java.awt.ComponentOrientation;
 
 
 public class GUI {
@@ -31,7 +36,7 @@ public class GUI {
 	private JRadioButton endButton;
 	private JRadioButton obstaclesButton;
 	private JLabel wValueLabel;
-	private JTextField wValueTextField;
+	private JFormattedTextField wValueTextField;
 	private Square startSquare, endSquare;
 	private Square[][] grid;
 	int n = 10;
@@ -98,11 +103,20 @@ public class GUI {
 		buttonGroup.add(obstaclesButton);
 		obstaclesButton.setSelected(true);
 
-		wValueTextField = new JTextField();
-		wValueTextField.setText("1.0");
+		NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+		DecimalFormat decimalFormat = (DecimalFormat) numberFormat;
+		decimalFormat.setGroupingUsed(false);
+		wValueTextField = new JFormattedTextField(decimalFormat);
+		wValueTextField.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		wValueTextField.setValue(new Double(1.0));
+		wValueTextField.setColumns(5);
+		//wValueTextField.setText("1.0");
 		wValueTextField.setBounds(292, 48, 54, 23);
+		wValueTextField.revalidate();
 		menu.add(wValueTextField);
-		wValueTextField.setColumns(10);
+		menu.revalidate();
+		frame.revalidate();
+
 
 		JButton SearchButton = new JButton("Search");
 		SearchButton.setBounds(411, 48, 89, 23);
@@ -111,6 +125,11 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				
+				double w = Double.parseDouble(wValueTextField.getText());
+				
+				
 				PriorityQueue<Square> pq = new PriorityQueue<Square>();
 
 
