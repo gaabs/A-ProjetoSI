@@ -2,8 +2,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 import javax.swing.ButtonGroup;
@@ -15,6 +18,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.xml.bind.Marshaller.Listener;
 
 
 public class GUI {
@@ -30,6 +34,7 @@ public class GUI {
 	private JTextField wValueTextField;
 	private Square startSquare, endSquare;
 	private Square[][] grid;
+	int n = 10;
 
 	/**
 	 * Launch the application.
@@ -102,10 +107,102 @@ public class GUI {
 		JButton SearchButton = new JButton("Search");
 		SearchButton.setBounds(411, 48, 89, 23);
 		menu.add(SearchButton);
+		SearchButton.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PriorityQueue<Square> pq = new PriorityQueue<Square>();
+
+
+
+				for(int i=0;i<n;i++){
+					for(int j=0;j<n;j++){
+						grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
+						grid[i][j].real = Double.MAX_VALUE;
+						grid[i][j].parent=null;
+						grid[i][j].path = false;
+						grid[i][j].repaint();
+
+					}
+
+				}
+
+				//				startSquare.function = h;
+				startSquare.real=0;
+				pq.add(startSquare);
+
+				// U, D, L, R, UL, UR, DL, DR 
+				int di[] = {-1,1,0,0,-1,-1,1,1};
+				int dj[] = {0,0,-1,1,-1,1,-1,1};
+				double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
+				double custo;
+				int ti, tj;
+				Square current = startSquare;
+
+				while(!pq.isEmpty()){
+
+					current = pq.peek();
+					if(current==endSquare){
+						pq.clear();
+					}else{
+						pq.remove();
+						current.expanding=true;
+						current.repaint();
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						for(int i=0;i<8;i++){
+							ti = current.i + di[i];
+							tj = current.j + dj[i];
+							custo = current.real + cost[i];
+							if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
+								if(grid[ti][tj].real > custo){
+									grid[ti][tj].real = custo;
+									if(grid[ti][tj].parent==null){
+										pq.add(grid[ti][tj]);
+										grid[ti][tj].border=true;
+										grid[ti][tj].repaint();
+										try {
+											Thread.sleep(10);
+										} catch (InterruptedException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+									}
+									grid[ti][tj].parent = current;
+
+								}
+							}
+
+						}
+					}
+
+
+
+				}
+
+				//current = endSquare;
+				System.out.println("saiii");
+				while(current!=null){
+					current.path = true;
+					current.repaint();
+					System.out.println(current.parent);
+					current = current.parent;
+				}
+
+
+
+
+
+
+			}
+		});;
 		//frame.getContentPane().add(menu, BorderLayout.NORTH);
 
-		int n = 10;
 		Scanner scan = new Scanner(System.in);
 		//n = scan.nextInt();
 		gridPanel = new JPanel();
@@ -132,7 +229,7 @@ public class GUI {
 
 						System.out.println(buttonGroup.getSelection().getActionCommand());
 						String choice = buttonGroup.getSelection().getActionCommand();
-						if (choice == "start"){
+						if (choice == "start" && !square.obstacle){
 							if (startSquare != null){
 								startSquare.start = false;
 								startSquare.repaint();
@@ -141,8 +238,8 @@ public class GUI {
 							square.start = true;
 							square.repaint();
 						}
-						
-						if (choice == "end"){
+
+						if (choice == "end" && !square.obstacle){
 							if (endSquare != null){
 								endSquare.end = false;
 								endSquare.repaint();
