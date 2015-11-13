@@ -10,10 +10,17 @@ public class Square extends JPanel implements Comparable<Square>{
 	double function;
 	double real;
 	double h;
-	boolean obstacle, start, end, border, expanding, path;
+	boolean obstacle, start, end, border, expanding, path, expanded;
 	Square parent;
 	
 	static double w = 1.0;
+//	static Color START_COLOR = new Color(arg0, arg1, arg2);
+//	static Color END_COLOR = new Color(arg0, arg1, arg2);
+//	static Color OBSTACLE_COLOR = new Color(arg0, arg1, arg2);
+//	static Color BORDER_COLOR = new Color(arg0, arg1, arg2);
+//	static Color EXPANDING_COLOR = new Color(arg0, arg1, arg2);
+//	static Color EXPANDED_COLOR = new Color(arg0, arg1, arg2);
+//	static Color PATH_COLOR = new Color(arg0, arg1, arg2);
 
 	/**
 	 * Create the panel.
@@ -22,7 +29,7 @@ public class Square extends JPanel implements Comparable<Square>{
 		this.i = i;
 		this.j = j;
 		
-		obstacle = start = end = border = expanding = path = false;
+		obstacle = start = end = border = expanding = path = expanded = false;
 		
 		this.setBackground(Color.WHITE);
 		this.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -32,13 +39,13 @@ public class Square extends JPanel implements Comparable<Square>{
 	void reset(){
 		real = Double.MAX_VALUE;
 		parent = null;
-		border = expanding = path = false;
+		border = expanding = path = expanded = false;
 	}
 	
 	void resetAll(){
 		real = Double.MAX_VALUE;
 		parent = null;
-		obstacle = start = end = border = expanding = path = false;
+		obstacle = start = end = border = expanding = path = expanded = false;
 	}
 	
 	public int compareTo(Square p) {
@@ -60,28 +67,31 @@ public class Square extends JPanel implements Comparable<Square>{
 		if (start) drawStart(g);
 		if (end) drawEnd(g);
 		
-		if (path) setBackground(Color.BLUE);
+		if (start) setBackground(Color.RED);
+		else if (end) setBackground(Color.GREEN);
+		else if (obstacle) setBackground(Color.GRAY);
+		else if (path) setBackground(Color.BLUE);
 		else if (expanding) setBackground(Color.YELLOW);
 		else if (border) setBackground(Color.ORANGE);	
-		else if (!obstacle) setBackground(Color.WHITE);
-		else setBackground(Color.GRAY);
+		else if (expanded) setBackground(Color.CYAN);
+		else setBackground(Color.WHITE);
 	}
 	
 	public void drawStart(Graphics g){
-		g.setColor(Color.RED);
-		g.fillOval(0, 0, 10, 10);
+		g.setColor(Color.WHITE);
 		g.drawString("START", 20, 20);
-		System.out.println("sdasds");
+			
 	}
 	
 	public void drawEnd(Graphics g){
-		g.setColor(Color.GREEN);
+		g.setColor(Color.WHITE);
 		g.drawString("END", 20, 20);
-		g.fillOval(this.getWidth()-10, 0, 10, 10);
 	}
 
 	public String toString(){
-		return String.format("(%d,%d, %b)", i,j, obstacle);
+	return "" + (real + h);
+	//return "function: " + (real + h) + "real: "+real+" h: "+h;
+		//return String.format("(%d,%d)%b", i,j, obstacle);
 	}
 	
 }

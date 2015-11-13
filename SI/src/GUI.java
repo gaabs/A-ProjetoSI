@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.PriorityQueue;
 import java.util.Scanner;
@@ -26,6 +27,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.xml.bind.Marshaller.Listener;
 
 import java.awt.ComponentOrientation;
@@ -40,10 +43,14 @@ public class GUI {
 	private JRadioButton startButton;
 	private JRadioButton endButton;
 	private JRadioButton obstaclesButton;
+	ButtonGroup buttonGroup;
 	JButton searchButton;
 	JButton resetButton;
 	private JLabel wValueLabel;
 	private JFormattedTextField wValueTextField;
+	private JLabel gridSizeLabel;
+	private JFormattedTextField gridSizeTextField;
+	private JButton updateGridSizeButton;
 	private Square startSquare, endSquare;
 	private Square[][] grid;
 	int n = 10;
@@ -99,12 +106,35 @@ public class GUI {
 		menu.setLayout(null);
 		menu.add(startButton);
 
+		gridSizeLabel = new JLabel("Grid size:");
+		gridSizeLabel.setLocation(10, 6);
+		gridSizeLabel.setSize(100, 20);
+		menu.add(gridSizeLabel);
+		gridSizeTextField = new JFormattedTextField();
+		gridSizeTextField.setText("10");
+		gridSizeTextField.setSize(30, 20);
+		gridSizeTextField.setLocation(104, 6);
+		menu.add(gridSizeTextField);
+		updateGridSizeButton = new JButton("Update Grid Size");
+		updateGridSizeButton.setLocation(10, 35);
+		updateGridSizeButton.setSize(130, 20);
+		updateGridSizeButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				n = Integer.parseInt(gridSizeTextField.getText());
+				buildGrid();
+			}
+		});
+
+		menu.add(updateGridSizeButton);
+
 		wValueLabel = new JLabel("w value:");
 		wValueLabel.setBounds(236, 52, 46, 14);
 		menu.add(wValueLabel);
 		menu.add(endButton);
 		menu.add(obstaclesButton);
-		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup = new ButtonGroup();
 		buttonGroup.add(startButton);
 		buttonGroup.add(endButton);
 		buttonGroup.add(obstaclesButton);
@@ -160,95 +190,123 @@ public class GUI {
 
 				if (startSquare != null && endSquare != null){
 
-					double w = Double.parseDouble(wValueTextField.getText());
-					Square.w = w;
+					SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-					PriorityQueue<Square> pq = new PriorityQueue<Square>();
-
-
-
-					for(int i=0;i<n;i++){
-						for(int j=0;j<n;j++){
-							grid[i][j].reset();
-							grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
-							grid[i][j].repaint();
-
-						}
-
-					}
-
-					//				startSquare.function = h;
-					startSquare.real=0;
-					pq.add(startSquare);
-
-					// U, D, L, R, UL, UR, DL, DR 
-					int di[] = {-1,1,0,0,-1,-1,1,1};
-					int dj[] = {0,0,-1,1,-1,1,-1,1};
-					double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
-					double custo;
-					int ti, tj;
-					Square current = startSquare;
-
-					while(!pq.isEmpty()){
-
-						current = pq.peek();
-						if(current==endSquare){
-							pq.clear();
-						}else{
-							pq.remove();
-							current.expanding=true;
-							current.repaint();
-
-							try {
-								Thread.sleep(100);
-								System.out.println(123);
-								frame.revalidate();
-								frame.repaint();
-							} catch (InterruptedException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
+						@Override
+						protected Void doInBackground()
+								throws Exception {
+							frame.revalidate();
+							frame.repaint();
 
 
-							for(int i=0;i<8;i++){
-								ti = current.i + di[i];
-								tj = current.j + dj[i];
-								custo = current.real + cost[i];
-								if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
-									if(grid[ti][tj].real > custo){
-										grid[ti][tj].real = custo;
-										if(grid[ti][tj].parent==null){
-											pq.add(grid[ti][tj]);
-											grid[ti][tj].border=true;
-											grid[ti][tj].revalidate();
-											grid[ti][tj].repaint();
-										}
-										grid[ti][tj].parent = current;
 
-									}
+							double w = Double.parseDouble(wValueTextField.getText());
+							Square.w = w;
+
+							PriorityQueue<Square> pq = new PriorityQueue<Square>();
+
+							//ArrayList<Square> pq = new ArrayList<Square>();
+
+
+
+							for(int i=0;i<n;i++){
+								for(int j=0;j<n;j++){
+									grid[i][j].reset();
+									grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
+									grid[i][j].repaint();
+
 								}
 
 							}
+
+							//				startSquare.function = h;
+							startSquare.real=0;
+							pq.add(startSquare);
+
+							// U, D, L, R, UL, UR, DL, DR 
+							int di[] = {-1,1,0,0,-1,-1,1,1};
+							int dj[] = {0,0,-1,1,-1,1,-1,1};
+							double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
+							double custo;
+							int ti, tj;
+							Square current = startSquare;
+							String s="";
+							while(!pq.isEmpty()){
+								s+=pq + "\n";
+
+								current = pq.peek();
+								//current = pq.get(0);
+								if(current==endSquare){
+									pq.clear();
+								}else{
+									pq.remove();
+									//pq.remove(0);
+									current.expanding=true;
+									current.repaint();
+
+									try {
+										publish();
+										Thread.sleep(0);
+										current.expanding = false;
+									} catch (InterruptedException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+
+
+									for(int i=0;i<8;i++){
+										ti = current.i + di[i];
+										tj = current.j + dj[i];
+										custo = current.real + cost[i];
+										if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
+											if(grid[ti][tj].real > custo){									
+												grid[ti][tj].real = custo;
+												if(grid[ti][tj].parent==null){
+													pq.add(grid[ti][tj]);
+													grid[ti][tj].border=true;
+													grid[ti][tj].revalidate();
+													grid[ti][tj].repaint();
+												}
+												grid[ti][tj].parent = current;
+
+											}
+										}
+
+									}
+									current.border=false;
+									current.expanded=true;
+									current.repaint();
+								}
+
+
+
+							}
+
+							//current = endSquare;
+							//System.out.println("saiii");
+							if(current==endSquare){
+								while(current!=null){
+									current.path = true;
+									current.repaint();
+									System.out.println(current.parent);
+									current = current.parent;
+								}
+							}
+							System.out.println(s);
+
+
+
+
+							return null;
 						}
 
+						private void publish() {
+							frame.revalidate();
+							frame.repaint();
+						}
 
-
-					}
-
-					//current = endSquare;
-					System.out.println("saiii");
-					while(current!=null){
-						current.path = true;
-						current.repaint();
-						System.out.println(current.parent);
-						current = current.parent;
-					}
-
-
-
-
-
-
+					};
+					worker.execute();
 				} else{
 					JOptionPane.showMessageDialog(null,"Erro! Selecione um começo e um fim!");
 				}
@@ -275,17 +333,33 @@ public class GUI {
 
 
 
-		//frame.getContentPane().add(menu, BorderLayout.NORTH);
 
-		Scanner scan = new Scanner(System.in);
-		//n = scan.nextInt();
+
+		//		gridPanel = new JPanel();
+		//		gridPanel.setLayout(new GridLayout(n,n));
+		//		gridPanel.setBounds(0, 78, 784, 483);
+		//		panel.add(gridPanel);
+
+		buildGrid();
+
+
+		//frame.pack();
+	}
+
+	void buildGrid(){
+		if (gridPanel != null){ 
+			gridPanel.removeAll();
+			panel.remove(gridPanel);
+		}
+
 		gridPanel = new JPanel();
+		gridPanel.setLayout(new GridLayout(n,n));
 		gridPanel.setBounds(0, 78, 784, 483);
 		panel.add(gridPanel);
-		gridPanel.setLayout(new GridLayout(n,n));
-
 
 		grid = new Square[n][n];
+		startSquare = endSquare = null;
+
 		for(int i = 0; i < n; i++){
 			for(int j = 0; j < n; j++){
 				Square square = new Square(i,j);
@@ -354,11 +428,7 @@ public class GUI {
 				grid[i][j] = square;
 			}
 		}
-		//frame.pack();
-		scan.close();
-	}
-	
-	static void buildGrid(){
-		
+		gridPanel.revalidate();
+		gridPanel.repaint();
 	}
 }
