@@ -31,6 +31,7 @@ public class GUI {
 	private JPanel panel;
 	private JPanel menu;
 	private JPanel gridPanel;
+	private JPanel referencePanel;
 	private JRadioButton startButton;
 	private JRadioButton endButton;
 	private JRadioButton obstaclesButton;
@@ -48,7 +49,10 @@ public class GUI {
 	private JFormattedTextField sleepTimeTextField;
 	private Square startSquare, endSquare;
 	private Square[][] grid;
+	SwingWorker<Void, Void> worker;
 	
+	int mouseButton;
+
 	boolean mouseDown = false;
 	int n = 10;
 
@@ -80,7 +84,7 @@ public class GUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 800, 600);
+		frame.setBounds(100, 100, 896, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel = new JPanel();
 		frame.getContentPane().add(panel, BorderLayout.CENTER);
@@ -174,7 +178,6 @@ public class GUI {
 
 			public void keyTyped(KeyEvent arg0) {
 				String s = wValueTextField.getText();
-				System.out.println(s);
 				if(!s.matches("[0-9]*[,.]?[0-9]*")){
 					wValueTextField.setText("");
 				}
@@ -210,115 +213,121 @@ public class GUI {
 					sleepTime = Integer.parseInt(sleepTimeTextField.getText());
 
 
-							if (startSquare != null && endSquare != null){
+					if (startSquare != null && endSquare != null){
+						if (worker != null && !worker.isDone()){
+							worker.cancel(true);
+							worker = null;
+						}
 
-								SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+						worker = new SwingWorker<Void, Void>() {
 
-									@Override
-									protected Void doInBackground()
-											throws Exception {
-										frame.revalidate();
-										frame.repaint();
-
-
-
-										double w = Double.parseDouble(wValueTextField.getText());
-										Square.w = w;
-
-										PriorityQueue<Square> pq = new PriorityQueue<Square>();
-
-										clearPath();
-
-										startSquare.real=0;
-										pq.add(startSquare);
-
-										// U, D, L, R, UL, UR, DL, DR 
-										int di[] = {-1,1,0,0,-1,-1,1,1};
-										int dj[] = {0,0,-1,1,-1,1,-1,1};
-										double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
-										double custo;
-										int ti, tj;
-										Square current = startSquare;
-										String s="";
-										while(!pq.isEmpty()){
-											s+=pq + "\n";
-
-											current = pq.peek();
-											//current = pq.get(0);
-											if(current==endSquare){
-												pq.clear();
-											}else{
-												pq.remove();
-												//pq.remove(0);
-												current.expanding=true;
-												current.repaint();
-
-												try {
-													publish();
-													Thread.sleep(sleepTime);
-													current.expanding = false;
-												} catch (InterruptedException e1) {
-													// TODO Auto-generated catch block
-													e1.printStackTrace();
-												}
+							@Override
+							protected Void doInBackground()
+									throws Exception {
+								frame.revalidate();
+								frame.repaint();
 
 
-												for(int i=0;i<8;i++){
-													ti = current.i + di[i];
-													tj = current.j + dj[i];
-													custo = current.real + cost[i];
-													if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
-														if(grid[ti][tj].real > custo){									
-															grid[ti][tj].real = custo;
-															if(grid[ti][tj].parent==null){
-																pq.add(grid[ti][tj]);
-																grid[ti][tj].border=true;
-																grid[ti][tj].revalidate();
-																grid[ti][tj].repaint();
-															}
-															grid[ti][tj].parent = current;
 
-														}
+								double w = Double.parseDouble(wValueTextField.getText());
+								Square.w = w;
+
+								PriorityQueue<Square> pq = new PriorityQueue<Square>();
+
+								clearPath();
+
+								startSquare.real=0;
+								pq.add(startSquare);
+
+								// U, D, L, R, UL, UR, DL, DR 
+								int di[] = {-1,1,0,0,-1,-1,1,1};
+								int dj[] = {0,0,-1,1,-1,1,-1,1};
+								double cost[] = {1,1,1,1,1.4,1.4,1.4,1.4};
+								double custo;
+								int ti, tj;
+								Square current = startSquare;
+								String s="";
+								while(!pq.isEmpty()){
+									if (isCancelled()) return null;
+									s+=pq + "\n";
+
+									current = pq.peek();
+									//current = pq.get(0);
+									if(current==endSquare){
+										pq.clear();
+									}else{
+										pq.remove();
+										//pq.remove(0);
+										current.expanding=true;
+										current.repaint();
+
+										try {
+											publish();
+											Thread.sleep(sleepTime);
+											current.expanding = false;
+										} catch (InterruptedException e1) {
+											// TODO Auto-generated catch block
+											Thread.currentThread().interrupt();
+											return null;
+										}
+
+
+										for(int i=0;i<8;i++){
+											ti = current.i + di[i];
+											tj = current.j + dj[i];
+											custo = current.real + cost[i];
+											if(ti<n && ti>=0 && tj<n && tj>=0 && !grid[ti][tj].obstacle){
+												if(grid[ti][tj].real > custo){									
+													grid[ti][tj].real = custo;
+													if(grid[ti][tj].parent==null){
+														pq.add(grid[ti][tj]);
+														grid[ti][tj].border=true;
+														grid[ti][tj].revalidate();
+														grid[ti][tj].repaint();
 													}
+													grid[ti][tj].parent = current;
 
 												}
-												current.border=false;
-												current.expanded=true;
-												current.repaint();
 											}
 
-
-
 										}
-
-										//current = endSquare;
-										//System.out.println("saiii");
-										if(current==endSquare){
-											while(current!=null){
-												current.path = true;
-												current.repaint();
-												System.out.println(current.parent);
-												current = current.parent;
-											}
-										}
-										System.out.println(s);
-
-
-
-
-										return null;
+										current.border=false;
+										current.expanded=true;
+										current.repaint();
 									}
 
-									private void publish() {
-										frame.revalidate();
-										frame.repaint();
-									}
 
-								};
-								worker.execute();
-							} else{
-								JOptionPane.showMessageDialog(null,"Erro! Selecione um começo e um fim!");
+
+								}
+
+								//current = endSquare;
+								//System.out.println("saiii");
+								if(current==endSquare){
+									while(current!=null){
+										current.path = true;
+										current.repaint();
+										//System.out.println(current.parent);
+										current = current.parent;
+									}
+								}
+								//System.out.println(s);
+
+
+
+
+								return null;
 							}
+
+							private void publish() {
+								frame.revalidate();
+								frame.repaint();
+							}
+
+						};
+						worker.execute();
+					} else{
+						JOptionPane.showMessageDialog(null,"Erro! Selecione um começo e um fim!");
+					}
 
 				} catch (Exception ex){
 					JOptionPane.showMessageDialog(null,"Sleep time must be an Integer");
@@ -333,6 +342,12 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+
+				if (worker != null && !worker.isDone()){
+					worker.cancel(true);
+					worker = null;
+				}
+
 				for (int i = 0; i < n; i++){
 					for (int j = 0; j < n; j++){
 						grid[i][j].resetAll();
@@ -341,6 +356,8 @@ public class GUI {
 				}
 				startSquare = null;
 				endSquare = null;
+
+
 			}
 		});
 
@@ -357,7 +374,20 @@ public class GUI {
 
 		buildGrid();
 
-
+		referencePanel = new JPanel();
+		referencePanel.setBounds(720, 400, 193, -345);
+		panel.add(referencePanel);
+		
+		JLabel lblNewLabel = new JLabel("Path");
+		lblNewLabel.setBounds(738, 88, 97, 14);
+		panel.add(lblNewLabel);
+		
+		JButton btnNewButton = new JButton("");
+		btnNewButton.setBackground(Square.PATH_COLOR);
+		btnNewButton.setBounds(821, 78, 25, 23);
+		panel.add(btnNewButton);
+		
+		
 		//frame.pack();
 	}
 
@@ -369,15 +399,8 @@ public class GUI {
 
 		gridPanel = new JPanel();
 		gridPanel.setLayout(new GridLayout(n,n));
-		gridPanel.setBounds(0, 78, 784, 483);
-		
-		gridPanel.addMouseMotionListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				System.out.println(gridPanel.getComponentAt(e.getX(), e.getY()) );
-			}
-		});
-		
+		gridPanel.setBounds(0, 78, 728, 483);
+
 		panel.add(gridPanel);
 
 		grid = new Square[n][n];
@@ -387,7 +410,7 @@ public class GUI {
 			for(int j = 0; j < n; j++){
 				Square square = new Square(i,j);
 				square.addMouseListener(new MouseListener() {
-					
+
 					@Override
 					public void mouseReleased(MouseEvent e) {
 						mouseDown = false;
@@ -396,40 +419,41 @@ public class GUI {
 
 					@Override
 					public void mousePressed(MouseEvent e) {
-						System.out.println("APERTOU");
+						mouseButton = e.getButton();
 						mouseDown = true;
 						updateSquare(square);
-						
+
 					}
-					
+
 					@Override
 					public void mouseExited(MouseEvent e) {
 						// TODO Auto-generated method stub
 						
+
 					}
-					
+
 					@Override
 					public void mouseEntered(MouseEvent e) {
-						// TODO Auto-generated method stub
-						
+						if (mouseDown) updateSquare(square);
+
 					}
-					
+
 					@Override
 					public void mouseClicked(MouseEvent e) {
 						// TODO Auto-generated method stub
-						
+
 					}
 				});
 				square.addMouseMotionListener(new MouseAdapter() {
 
 					@Override
 					public void mouseMoved(MouseEvent e) {
-						System.out.println(mouseDown);
+						//System.out.println(mouseDown);
 						//if (mouseDown){
-							//updateSquare(square);
-					//	}
+						//updateSquare(square);
+						//	}
 					}
-					
+
 				});
 
 				gridPanel.add(square);
@@ -440,6 +464,8 @@ public class GUI {
 		gridPanel.repaint();
 	}
 
+	
+	//verificar bug squres null
 	void clearPath(){
 		for(int i=0;i<n;i++){
 			for(int j=0;j<n;j++){
@@ -450,7 +476,7 @@ public class GUI {
 			}
 		}
 	}
-	
+
 	void updateSquare(Square square){
 		String choice = buttonGroup.getSelection().getActionCommand();
 		if (choice == "start" && !square.obstacle){
@@ -475,7 +501,8 @@ public class GUI {
 
 		if (choice == "obstacle"){
 			if (!square.start && !square.end){
-				square.obstacle = !square.obstacle;
+				if (mouseButton == MouseEvent.BUTTON1) square.obstacle = true;
+				else if (mouseButton == MouseEvent.BUTTON3) square.obstacle = false;
 				square.repaint();
 			}
 		}

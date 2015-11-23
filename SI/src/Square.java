@@ -14,13 +14,13 @@ public class Square extends JPanel implements Comparable<Square>{
 	Square parent;
 	
 	static double w = 1.0;
-//	static Color START_COLOR = new Color(arg0, arg1, arg2);
-//	static Color END_COLOR = new Color(arg0, arg1, arg2);
-//	static Color OBSTACLE_COLOR = new Color(arg0, arg1, arg2);
-//	static Color BORDER_COLOR = new Color(arg0, arg1, arg2);
-//	static Color EXPANDING_COLOR = new Color(arg0, arg1, arg2);
-//	static Color EXPANDED_COLOR = new Color(arg0, arg1, arg2);
-//	static Color PATH_COLOR = new Color(arg0, arg1, arg2);
+	static Color START_COLOR = new Color(204, 0, 0);
+	static Color END_COLOR = new Color(0, 153, 76);
+	static Color OBSTACLE_COLOR = Color.GRAY;
+	static Color BORDER_COLOR = new Color(255, 255, 153);
+	static Color EXPANDING_COLOR = Color.YELLOW;
+	static Color EXPANDED_COLOR = new Color(204, 255, 255);
+	static Color PATH_COLOR = new Color(55, 153, 253);
 
 	/**
 	 * Create the panel.
@@ -67,13 +67,13 @@ public class Square extends JPanel implements Comparable<Square>{
 		if (start) drawStart(g);
 		if (end) drawEnd(g);
 		
-		if (start) setBackground(Color.RED);
-		else if (end) setBackground(Color.GREEN);
-		else if (obstacle) setBackground(Color.GRAY);
-		else if (path) setBackground(Color.BLUE);
-		else if (expanding) setBackground(Color.YELLOW);
-		else if (border) setBackground(Color.ORANGE);	
-		else if (expanded) setBackground(Color.CYAN);
+		if (start) setBackground(START_COLOR);
+		else if (end) setBackground(END_COLOR);
+		else if (obstacle) setBackground(OBSTACLE_COLOR);
+		else if (path) setBackground(PATH_COLOR);
+		else if (expanding) setBackground(EXPANDING_COLOR);
+		else if (border) setBackground(BORDER_COLOR);	
+		else if (expanded) setBackground(EXPANDED_COLOR);
 		else setBackground(Color.WHITE);
 	}
 	
