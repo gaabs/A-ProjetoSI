@@ -55,9 +55,6 @@ public class Square extends JPanel implements Comparable<Square>{
 		if (function > p.function) return 1;
 		if (function < p.function) return -1;
 		
-		//if (real > p.real) return 1;
-		//if (real < p.real) return -1;
-		
 		return 0;
 	}
 	

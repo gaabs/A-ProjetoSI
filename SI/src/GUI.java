@@ -84,6 +84,7 @@ public class GUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setResizable(false);
 		frame.setBounds(100, 100, 896, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel = new JPanel();
@@ -252,12 +253,10 @@ public class GUI {
 									s+=pq + "\n";
 
 									current = pq.peek();
-									//current = pq.get(0);
 									if(current==endSquare){
 										pq.clear();
 									}else{
 										pq.remove();
-										//pq.remove(0);
 										current.expanding=true;
 										current.repaint();
 
@@ -266,7 +265,6 @@ public class GUI {
 											Thread.sleep(sleepTime);
 											current.expanding = false;
 										} catch (InterruptedException e1) {
-											// TODO Auto-generated catch block
 											Thread.currentThread().interrupt();
 											return null;
 										}
@@ -300,20 +298,13 @@ public class GUI {
 
 								}
 
-								//current = endSquare;
-								//System.out.println("saiii");
 								if(current==endSquare){
 									while(current!=null){
 										current.path = true;
 										current.repaint();
-										//System.out.println(current.parent);
 										current = current.parent;
 									}
 								}
-								//System.out.println(s);
-
-
-
 
 								return null;
 							}
@@ -368,6 +359,10 @@ public class GUI {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if (worker != null && !worker.isDone()){
+					worker.cancel(true);
+					worker = null;
+				}
 				clearPath();
 			}
 		});
@@ -378,15 +373,41 @@ public class GUI {
 		referencePanel.setBounds(720, 400, 193, -345);
 		panel.add(referencePanel);
 		
-		JLabel lblNewLabel = new JLabel("Path");
-		lblNewLabel.setBounds(738, 88, 97, 14);
-		panel.add(lblNewLabel);
+		JLabel pathLabel = new JLabel("Path");
+		pathLabel.setBounds(738, 95, 97, 14);
+		panel.add(pathLabel);
 		
-		JButton btnNewButton = new JButton("");
-		btnNewButton.setBackground(Square.PATH_COLOR);
-		btnNewButton.setBounds(821, 78, 25, 23);
-		panel.add(btnNewButton);
+		JButton pathColor = new JButton("");
+		pathColor.setBackground(Square.PATH_COLOR);
+		pathColor.setBounds(810, 91, 25, 23);
+		panel.add(pathColor);
 		
+		JLabel expandingLabel = new JLabel("Expanding");
+		expandingLabel.setBounds(738, 134, 97, 14);
+		panel.add(expandingLabel);
+		
+		JButton expandingColor = new JButton("");
+		expandingColor.setBackground(Square.EXPANDING_COLOR);
+		expandingColor.setBounds(810, 129, 25, 23);
+		panel.add(expandingColor);
+		
+		JLabel expandedLabel = new JLabel("Expanded");
+		expandedLabel.setBounds(738, 171, 97, 14);
+		panel.add(expandedLabel);
+		
+		JButton expandedColor = new JButton("");
+		expandedColor.setBackground(Square.EXPANDED_COLOR);
+		expandedColor.setBounds(810, 165, 25, 23);
+		panel.add(expandedColor);
+		
+		JLabel borderLabel = new JLabel("Border");
+		borderLabel.setBounds(738, 205, 97, 14);
+		panel.add(borderLabel);
+		
+		JButton borderColor = new JButton("");
+		borderColor.setBackground(Square.BORDER_COLOR);
+		borderColor.setBounds(810, 200, 25, 23);
+		panel.add(borderColor);
 		
 		//frame.pack();
 	}
@@ -443,17 +464,6 @@ public class GUI {
 						// TODO Auto-generated method stub
 
 					}
-				});
-				square.addMouseMotionListener(new MouseAdapter() {
-
-					@Override
-					public void mouseMoved(MouseEvent e) {
-						//System.out.println(mouseDown);
-						//if (mouseDown){
-						//updateSquare(square);
-						//	}
-					}
-
 				});
 
 				gridPanel.add(square);
