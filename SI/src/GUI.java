@@ -50,7 +50,7 @@ public class GUI {
 	private Square startSquare, endSquare;
 	private Square[][] grid;
 	SwingWorker<Void, Void> worker;
-	
+
 	int mouseButton;
 
 	boolean mouseDown = false;
@@ -372,43 +372,43 @@ public class GUI {
 		referencePanel = new JPanel();
 		referencePanel.setBounds(720, 400, 193, -345);
 		panel.add(referencePanel);
-		
+
 		JLabel pathLabel = new JLabel("Path");
 		pathLabel.setBounds(738, 95, 97, 14);
 		panel.add(pathLabel);
-		
+
 		JButton pathColor = new JButton("");
 		pathColor.setBackground(Square.PATH_COLOR);
 		pathColor.setBounds(810, 91, 25, 23);
 		panel.add(pathColor);
-		
+
 		JLabel expandingLabel = new JLabel("Expanding");
 		expandingLabel.setBounds(738, 134, 97, 14);
 		panel.add(expandingLabel);
-		
+
 		JButton expandingColor = new JButton("");
 		expandingColor.setBackground(Square.EXPANDING_COLOR);
 		expandingColor.setBounds(810, 129, 25, 23);
 		panel.add(expandingColor);
-		
+
 		JLabel expandedLabel = new JLabel("Expanded");
 		expandedLabel.setBounds(738, 171, 97, 14);
 		panel.add(expandedLabel);
-		
+
 		JButton expandedColor = new JButton("");
 		expandedColor.setBackground(Square.EXPANDED_COLOR);
 		expandedColor.setBounds(810, 165, 25, 23);
 		panel.add(expandedColor);
-		
+
 		JLabel borderLabel = new JLabel("Border");
 		borderLabel.setBounds(738, 205, 97, 14);
 		panel.add(borderLabel);
-		
+
 		JButton borderColor = new JButton("");
 		borderColor.setBackground(Square.BORDER_COLOR);
 		borderColor.setBounds(810, 200, 25, 23);
 		panel.add(borderColor);
-		
+
 		//frame.pack();
 	}
 
@@ -449,7 +449,7 @@ public class GUI {
 					@Override
 					public void mouseExited(MouseEvent e) {
 						// TODO Auto-generated method stub
-						
+
 
 					}
 
@@ -474,15 +474,15 @@ public class GUI {
 		gridPanel.repaint();
 	}
 
-	
-	//verificar bug squres null
 	void clearPath(){
-		for(int i=0;i<n;i++){
-			for(int j=0;j<n;j++){
-				grid[i][j].reset();
-				grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
-				grid[i][j].repaint();
+		if (endSquare != null){
+			for(int i=0;i<n;i++){
+				for(int j=0;j<n;j++){
+					grid[i][j].reset();
+					grid[i][j].h = Math.sqrt(Math.pow((i - endSquare.i),2) + Math.pow((j - endSquare.j),2));
+					grid[i][j].repaint();
 
+				}
 			}
 		}
 	}
